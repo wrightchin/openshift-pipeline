@@ -1,14 +1,23 @@
-FROM node:latest
+FROM node:14-alpine
 
-RUN mkdir -p /usr/src/app
+RUN mkdir -p /usr/src/app &&\
+ chown -R node:node /usr/src/app 
+
 WORKDIR /usr/src/app
 
-# COPY package*.json ./
-COPY package.json /usr/src/app/
-RUN npm install 
+RUN chgrp -R 0 /usr/src/app &&\
+ chmod -R g+rwX /usr/src/app
 
-# COPY . .
-COPY . /usr/src/app
+COPY package*.json /usr/src/app
+
+RUN npm install
+
+COPY . .
+
+RUN chown -R node:node /usr/src/app/node_modules &&\
+    chmod 777 /usr/src/app/node_modules
+
+USER node
 
 EXPOSE 3000
 CMD ["npm", "start"]
